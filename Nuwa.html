@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Konverter Aksara Jawa</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Javanese:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --danger: #ef4444;
+      --danger-hover: #dc2626;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --output-bg: #f1f5f9;
+      --focus-ring: rgba(37, 99, 235, 0.2);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 2.5rem 1rem;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 960px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    header h1 {
+      font-size: 2.25rem;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: -0.025em;
+      margin-bottom: 0.5rem;
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 1rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Controls & Options Bar */
+    .controls-bar {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+    }
+
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .control-group label {
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--text-main);
+    }
+
+    select {
+      padding: 0.5rem 0.85rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background-color: #fff;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.875rem;
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--focus-ring);
+    }
+
+    /* Grid Layout */
+    .app-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 768px) {
+      .app-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.85rem;
+    }
+
+    .card-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+
+    textarea {
+      width: 100%;
+      height: 220px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      font-family: inherit;
+      font-size: 1rem;
+      line-height: 1.6;
+      resize: none;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      background-color: #ffffff;
+    }
+
+    textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--focus-ring);
+    }
+
+    .output-box {
+      width: 100%;
+      height: 220px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      font-family: 'Noto Sans Javanese', serif;
+      font-size: 1.75rem;
+      line-height: 2.3;
+      background-color: var(--output-bg);
+      overflow-y: auto;
+      word-wrap: break-word;
+      color: var(--text-main);
+    }
+
+    .btn {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.5rem 0.9rem;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.8125rem;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+
+    .btn:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-secondary {
+      background-color: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background-color: #f1f5f9;
+      color: var(--text-main);
+    }
+
+    .btn-danger {
+      background-color: var(--danger);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background-color: var(--danger-hover);
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(4px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      z-index: 100;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      background: #ffffff;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 560px;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .modal-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h2 {
+      font-size: 1.125rem;
+      font-weight: 700;
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .input-group input {
+      flex: 1;
+      padding: 0.6rem 0.85rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      outline: none;
+      font-size: 0.875rem;
+    }
+
+    .input-group input:focus {
+      border-color: var(--primary);
+    }
+
+    .word-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      max-height: 250px;
+      overflow-y: auto;
+      padding: 0.75rem;
+      background: var(--output-bg);
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+
+    .tag {
+      background: white;
+      border: 1px solid var(--border);
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.8125rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: var(--text-main);
+    }
+
+    .tag button {
+      border: none;
+      background: none;
+      color: var(--text-muted);
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 0.875rem;
+      line-height: 1;
+    }
+
+    .tag button:hover {
+      color: var(--danger);
+    }
+
+    .modal-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f8fafc;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background-color: #0f172a;
+      color: white;
+      padding: 0.75rem 1.25rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      opacity: 0;
+      transform: translateY(1rem);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      pointer-events: none;
+      z-index: 200;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    footer {
+      margin-top: 3rem;
+      text-align: center;
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <h1>Konverter Aksara Jawa</h1>
+      <p>Transliterasi teks Latin ke Aksara Jawa secara otomatis dan real-time.</p>
+    </header>
+
+    <!-- Controls Bar -->
+    <div class="controls-bar">
+      <div class="control-group">
+        <label for="eMode">Mode Vokal 'e':</label>
+        <select id="eMode" onchange="konversi()">
+          <option value="smart" selected>Otomatis (Pintar: Kamus Taling)</option>
+          <option value="taling">Selalu Taling (é / ꦺ)</option>
+          <option value="pepet">Selalu Pepet (ê / ꦼ)</option>
+        </select>
+      </div>
+
+      <button class="btn btn-secondary" onclick="openModal()">⚙️ Kelola Kamus Taling</button>
+    </div>
+
+    <!-- App Grid -->
+    <div class="app-grid">
+      <!-- Input Latin -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Teks Latin</span>
+          <button class="btn btn-secondary" onclick="clearText()">Hapus</button>
+        </div>
+        <textarea id="latinInput" placeholder="Ketik teks Latin di sini (contoh: Endah, Sate, Sore, Pasar)..." oninput="konversi()"></textarea>
+      </div>
+
+      <!-- Output Aksara Jawa -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Aksara Jawa</span>
+          <button class="btn btn-secondary" onclick="copyOutput()">Salin</button>
+        </div>
+        <div id="jawaOutput" class="output-box" aria-live="polite"></div>
+      </div>
+    </div>
+
+    <footer>
+      <p>&copy; Transliterasi Aksara Jawa &bull; Usaha Pelestarian Budaya Jawa</p>
+    </footer>
+  </div>
+
+  <!-- Modal Kelola Kamus -->
+  <div id="dictionaryModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>Kelola Kata Vokal Taling (é)</h2>
+        <button class="btn btn-secondary" onclick="closeModal()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <p style="font-size: 0.85rem; color: var(--text-muted);">
+          Kata yang didaftarkan di sini akan otomatis dikonversi menggunakan Sandhangan Taling (<b>ꦺ</b>) pada mode Otomatis.
+        </p>
+
+        <div class="input-group">
+          <input type="text" id="newWordInput" placeholder="Tambah kata baru (contoh: endah)" onkeypress="handleKeyPress(event)" />
+          <button class="btn" onclick="addWord()">Tambah</button>
+        </div>
+
+        <div>
+          <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 0.5rem;">
+            DAFTAR KATA TALING (<span id="wordCount">0</span>):
+          </label>
+          <div id="wordTags" class="word-tags"></div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary btn-danger" onclick="resetToDefault()">Reset ke Bawaan</button>
+        <button class="btn" onclick="closeModal()">Selesai</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast">Aksara Jawa berhasil disalin!</div>
+
+  <script>
+    // Kamus bawaan standar
+    const DEFAULT_TALING_WORDS = [
+      'endah', 'sate', 'satene', 'sore', 'sorene', 'kene', 'rene', 'dhewe', 'dheweke', 
+      'tempe', 'lele', 'cabe', 'jahe', 'suwe', 'kafe', 'kolek', 'gedhe', 'bebek',
+      'pene', 'rame', 'cape', 'gupe', 'toko', 'soto', 'ceker', 'cekere', 'cekeremis',
+      'cecer', 'ceger', 'cewer', 'cekre', 'cere', 'core', 'cuwer'
+    ];
+
+    let talingWords = new Set();
+
+    // Memuat kata dari LocalStorage
+    function initDictionary() {
+      const saved = localStorage.getItem('customTalingWords');
+      if (saved) {
+        try {
+          talingWords = new Set(JSON.parse(saved));
+        } catch (e) {
+          talingWords = new Set(DEFAULT_TALING_WORDS);
+        }
+      } else {
+        talingWords = new Set(DEFAULT_TALING_WORDS);
+      }
+      renderWordList();
+      konversi();
+    }
+
+    function saveDictionary() {
+      localStorage.setItem('customTalingWords', JSON.stringify([...talingWords]));
+      renderWordList();
+      konversi();
+    }
+
+    function renderWordList() {
+      const container = document.getElementById('wordTags');
+      document.getElementById('wordCount').innerText = talingWords.size;
+      container.innerHTML = '';
+
+      const sortedWords = Array.from(talingWords).sort();
+      sortedWords.forEach(word => {
+        const tag = document.createElement('div');
+        tag.className = 'tag';
+        tag.innerHTML = `${word} <button onclick="removeWord('${word}')">&times;</button>`;
+        container.appendChild(tag);
+      });
+    }
+
+    function addWord() {
+      const input = document.getElementById('newWordInput');
+      const word = input.value.trim().toLowerCase();
+      if (word) {
+        talingWords.add(word);
+        saveDictionary();
+        input.value = '';
+        showToast('Kata berhasil ditambahkan!');
+      }
+    }
+
+    function removeWord(word) {
+      talingWords.delete(word);
+      saveDictionary();
+    }
+
+    function resetToDefault() {
+      if (confirm('Kembalikan daftar kata ke setelan awal?')) {
+        talingWords = new Set(DEFAULT_TALING_WORDS);
+        saveDictionary();
+        showToast('Kamus dikembalikan ke standar!');
+      }
+    }
+
+    function handleKeyPress(e) {
+      if (e.key === 'Enter') addWord();
+    }
+
+    // Modal Control
+    function openModal() {
+      document.getElementById('dictionaryModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('dictionaryModal').classList.remove('active');
+    }
+
+    // Transliterasi Logic
+    const aksaraMap = {
+      'ng': 'ꦔ', 'ny': 'ꦚ', 'th': 'ꦛ', 'dh': 'ꦝ',
+      'h': 'ꦲ', 'n': 'ꦤ', 'c': 'ꦕ', 'r': 'ꦫ', 'k': 'ꦏ',
+      'd': 'ꦢ', 't': 'ꦠ', 's': 'ꦱ', 'w': 'ꦮ', 'l': 'ꦭ',
+      'p': 'ꦥ', 'j': 'ꦗ', 'y': 'ꦪ', 'm': 'ꦩ', 'g': 'ꦒ', 'b': 'ꦧ'
+    };
+
+    function transliterasi(text) {
+      if (!text) return '';
+
+      const eMode = document.getElementById('eMode').value;
+      let rawText = text.toLowerCase();
+
+      let words = rawText.split(/(\s+|[^\wéèêáíúóàìùòâîûô]+)/);
+      words = words.map(w => {
+        if (/[éè]/.test(w)) return w;
+        if (eMode === 'smart' && talingWords.has(w)) {
+          return w.replace(/e/g, 'é');
+        }
+        if (eMode === 'taling') {
+          return w.replace(/e/g, 'é');
+        }
+        if (eMode === 'pepet') {
+          return w.replace(/e/g, 'ê');
+        }
+        return w;
+      });
+      let str = words.join('');
+
+      let result = '';
+      let i = 0;
+
+      while (i < str.length) {
+        let char = str[i];
+
+        if (!/[a-zéèê]/i.test(char)) {
+          result += char;
+          i++;
+          continue;
+        }
+
+        if (str.substr(i, 2) === 're' || str.substr(i, 2) === 'rê') {
+          result += 'ꦉ';
+          i += 2;
+          continue;
+        }
+        if (str.substr(i, 2) === 'le' || str.substr(i, 2) === 'lê') {
+          result += 'ꦊ';
+          i += 2;
+          continue;
+        }
+
+        let twoChars = str.substr(i, 2);
+        let konsonan = '';
+        let step = 0;
+
+        if (aksaraMap[twoChars]) {
+          konsonan = aksaraMap[twoChars];
+          step = 2;
+        } else if (aksaraMap[char]) {
+          konsonan = aksaraMap[char];
+          step = 1;
+        }
+
+        if (konsonan) {
+          i += step;
+          let nextChar = str[i];
+
+          if (nextChar === 'r') {
+            let afterR = str[i + 1];
+            if (afterR === 'e' || afterR === 'ê') {
+              result += konsonan + 'ꦽ';
+              i += 2;
+              continue;
+            } else if (/[aiuéoè]/.test(afterR)) {
+              result += konsonan + 'ꦿ' + getSandhangan(afterR);
+              i += 2;
+              continue;
+            }
+          } else if (nextChar === 'y' && /[aiueoéèê]/.test(str[i + 1])) {
+            result += konsonan + 'ꦾ' + getSandhangan(str[i + 1]);
+            i += 2;
+            continue;
+          } else if (nextChar === 'w' && /[aiueoéèê]/.test(str[i + 1])) {
+            result += konsonan + '꧀ꦮ' + getSandhangan(str[i + 1]);
+            i += 2;
+            continue;
+          } else if (nextChar === 'l' && /[aiueoéèê]/.test(str[i + 1])) {
+            result += konsonan + '꧀ꦭ' + getSandhangan(str[i + 1]);
+            i += 2;
+            continue;
+          }
+
+          if (nextChar && /[aiueoéèê]/.test(nextChar)) {
+            result += konsonan + getSandhangan(nextChar);
+            i++;
+          } else {
+            if (konsonan === 'ꦫ' && (!nextChar || !/[aiueoéèê]/.test(nextChar))) {
+              result += 'ꦂ';
+            } else if (konsonan === 'ꦲ' && (!nextChar || !/[aiueoéèê]/.test(nextChar))) {
+              result += 'ꦃ';
+            } else if (konsonan === 'ꦔ' && (!nextChar || !/[aiueoéèê]/.test(nextChar))) {
+              result += 'ꦁ';
+            } else {
+              result += konsonan + '꧀';
+            }
+          }
+        } else if (/[aiueoéèê]/.test(char)) {
+          let baseVokal = 'ꦲ';
+          result += baseVokal + getSandhangan(char);
+          i++;
+        } else {
+          i++;
+        }
+      }
+
+      return result;
+    }
+
+    function getSandhangan(vokal) {
+      switch (vokal) {
+        case 'i': return 'ꦶ';
+        case 'u': return 'ꦸ';
+        case 'é':
+        case 'è': return 'ꦺ';
+        case 'o': return 'ꦺꦴ';
+        case 'e':
+        case 'ê': return 'ꦼ';
+        case 'a': default: return '';
+      }
+    }
+
+    function konversi() {
+      const input = document.getElementById('latinInput').value;
+      const output = transliterasi(input);
+      document.getElementById('jawaOutput').innerText = output;
+    }
+
+    function clearText() {
+      document.getElementById('latinInput').value = '';
+      document.getElementById('jawaOutput').innerText = '';
+    }
+
+    function copyOutput() {
+      const outputText = document.getElementById('jawaOutput').innerText;
+      if (outputText) {
+        navigator.clipboard.writeText(outputText);
+        showToast('Aksara Jawa berhasil disalin!');
+      }
+    }
+
+    function showToast(message = 'Berhasil!') {
+      const toast = document.getElementById('toast');
+      toast.innerText = message;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2500);
+    }
+
+    // Inisialisasi saat aplikasi dimuat
+    document.addEventListener('DOMContentLoaded', initDictionary);
+  </script>
+</body>
+</html>
