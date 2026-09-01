@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Latin → Aksara Jawa (Dengan Murda)</title>
+    <title>Latin → Aksara Jawa (Dengan Murda & Kamus Taling)</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background: #f5f2ed; font-family: 'Segoe UI', Tahoma, sans-serif; padding: 20px; }
@@ -27,6 +27,14 @@
         .options { display: flex; gap: 20px; flex-wrap: wrap; margin: 12px 0; padding: 12px 16px; background: #f8f6f2; border-radius: 16px; align-items: center; }
         .options label { display: flex; align-items: center; gap: 6px; font-size: 14px; color: #3d352b; cursor: pointer; }
         .options input[type="checkbox"] { width: 18px; height: 18px; accent-color: #b8a68b; }
+        .kamus-box { background: #f8f6f2; border-radius: 16px; padding: 12px 16px; margin: 12px 0; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+        .kamus-box input { flex: 1; min-width: 150px; padding: 6px 12px; border: 2px solid #e2dcd2; border-radius: 20px; font-size: 14px; outline: none; }
+        .kamus-box input:focus { border-color: #b8a68b; }
+        .kamus-box button { background: #b8a68b; color: white; border: none; padding: 6px 16px; border-radius: 20px; font-weight: 600; font-size: 13px; cursor: pointer; transition: 0.2s; }
+        .kamus-box button:hover { background: #a08d72; }
+        .kamus-box .list { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 0; }
+        .kamus-box .tag { background: #ede8e0; padding: 2px 12px; border-radius: 20px; font-size: 13px; color: #2d2a24; display: inline-flex; align-items: center; gap: 6px; }
+        .kamus-box .tag .del { cursor: pointer; color: #b33; font-weight: bold; }
         .info-msg { background: #eef6ff; border: 1px solid #b8d4f0; border-radius: 12px; padding: 12px 16px; color: #1a4b7a; margin-top: 12px; font-size: 14px; }
         .font-warning { background: #fff8e1; border: 1px solid #f5d742; border-radius: 12px; padding: 12px 16px; margin-top: 12px; font-size: 14px; color: #5d4e2b; display: none; }
         .font-warning.show { display: block; }
@@ -48,7 +56,7 @@
         Berdasarkan <strong>Pedoman Penulisan Aksara Jawa (1996)</strong>.<br>
         <ul>
             <li><strong>Dua jenis 'e'</strong>: <code>e</code> → pepet (ꦼ) ; <code>é</code> → taling (ꦺ)</li>
-            <li><strong>Khusus "ceker" dan "ceceker"</strong>: semua 'e' otomatis taling</li>
+            <li><strong>Kamus Taling</strong>: daftar kata yang semua 'e'-nya otomatis menjadi taling (contoh: ceker, ceceker). Anda bisa menambah kata baru.</li>
             <li><strong>Vokal awal</strong> → ha + sandhangan</li>
             <li><strong>Konsonan mati</strong> → wignyan (h), layar (r), cecak (ng), atau pangkon</li>
             <li><strong>Panjingan la</strong> untuk gugus konsonan + l</li>
@@ -59,6 +67,16 @@
     <div class="options">
         <label><input type="checkbox" id="useMurda"> Gunakan Aksara Murda (huruf kapital awal kata)</label>
         <label><input type="checkbox" id="usePangkon" checked> Gunakan pangkon (꧀)</label>
+    </div>
+
+    <div class="kamus-box">
+        <span style="font-weight:600; font-size:14px; color:#3d352b;">📚 Tambah Kata Taling:</span>
+        <input type="text" id="talingInput" placeholder="contoh: ceker" style="flex:1; min-width:120px;">
+        <button id="addTalingBtn">+ Tambah</button>
+        <div style="width:100%; margin-top:6px;">
+            <span style="font-size:13px; color:#5f5546;">Kata yang otomatis taling:</span>
+            <div class="list" id="talingList"></div>
+        </div>
     </div>
 
     <div class="row">
@@ -111,12 +129,10 @@
 
 <script>
 // ================================================================
-//  KONVERSI LATIN → AKSARA JAWA (DENGAN AKSARA MURDA)
-//  Aturan khusus: ceker dan ceceker → semua 'e' taling
-//  Murda aktif: huruf kapital awal kata → aksara murda
+//  KONVERSI LATIN → AKSARA JAWA (DENGAN MURDA & KAMUS TALING)
 // ================================================================
 
-// AKSARA DASAR (Carakan)
+// AKSARA DASAR
 const aksara = {
     'ha':'ꦲ','na':'ꦤ','ca':'ꦕ','ra':'ꦫ','ka':'ꦏ',
     'da':'ꦢ','ta':'ꦠ','sa':'ꦱ','wa':'ꦮ','la':'ꦭ',
@@ -124,16 +140,10 @@ const aksara = {
     'ma':'ꦩ','ga':'ꦒ','ba':'ꦧ','tha':'ꦡ','nga':'ꦔ'
 };
 
-// AKSARA MURDA (untuk huruf kapital)
+// AKSARA MURDA
 const aksaraMurda = {
-    'na':'ꦟ',  // Na murda
-    'ka':'ꦑ',  // Ka murda
-    'ta':'ꦛ',  // Ta murda
-    'sa':'ꦯ',  // Sa murda
-    'pa':'ꦦ',  // Pa murda
-    'ma':'ꦩ',  // Ma murda (bentuknya mungkin sama? Tapi kita masukkan)
-    'ga':'ꦓ',  // Ga murda
-    'ba':'ꦨ'   // Ba murda
+    'na':'ꦟ','ka':'ꦑ','ta':'ꦛ','sa':'ꦯ',
+    'pa':'ꦦ','ma':'ꦩ','ga':'ꦓ','ba':'ꦨ'
 };
 
 // SANDHANGAN
@@ -147,8 +157,8 @@ const cecak   = 'ꦁ';
 const pangkon = '꧀';
 const pasanganLa = '꧀ꦭ';
 
-// Daftar kata yang semua 'e'-nya dianggap taling
-const kataTaling = ['ceker', 'ceceker'];
+// KAMUS TALING (kata yang semua 'e'-nya dianggap taling)
+let kataTaling = ['ceker', 'ceceker'];
 
 function getNamaAksara(k) {
     const map = {
@@ -160,13 +170,13 @@ function getNamaAksara(k) {
     return map[k] || null;
 }
 
-// Konversi satu kata (dengan parameter murda dan pangkon)
+// Konversi satu kata
 function konversiKata(kata, useMurda, usePangkon) {
     if (!kata) return '';
-    const kataAsli = kata; // untuk cek kapital
+    const kataAsli = kata;
     kata = kata.toLowerCase();
 
-    // Jika kata termasuk daftar taling, ubah semua 'e' menjadi 'é'
+    // Jika kata ada di kamus taling, ubah semua 'e' menjadi 'é'
     let processed = kata;
     if (kataTaling.includes(kata)) {
         processed = kata.replace(/e/g, 'é');
@@ -227,13 +237,11 @@ function konversiKata(kata, useMurda, usePangkon) {
             continue;
         }
 
-        // Cek apakah huruf pertama kata adalah kapital dan murda aktif
+        // Cek murda
         let useMurdaThis = false;
         if (useMurda && isFirstChar) {
-            // Periksa apakah huruf pertama kata asli adalah huruf kapital
             const firstChar = kataAsli.charAt(0);
             if (firstChar >= 'A' && firstChar <= 'Z') {
-                // Jika ada aksara murda untuk konsonan ini
                 if (aksaraMurda[nama]) {
                     aksaraDasar = aksaraMurda[nama];
                     useMurdaThis = true;
@@ -349,6 +357,44 @@ const useMurda = document.getElementById('useMurda');
 const usePangkon = document.getElementById('usePangkon');
 const fontWarning = document.getElementById('fontWarning');
 
+// Kamus taling
+const talingInput = document.getElementById('talingInput');
+const addTalingBtn = document.getElementById('addTalingBtn');
+const talingList = document.getElementById('talingList');
+
+function renderTalingList() {
+    talingList.innerHTML = '';
+    kataTaling.forEach(word => {
+        const span = document.createElement('span');
+        span.className = 'tag';
+        span.innerHTML = `${word} <span class="del" data-word="${word}">✕</span>`;
+        talingList.appendChild(span);
+    });
+    // Event listener hapus
+    document.querySelectorAll('.tag .del').forEach(el => {
+        el.addEventListener('click', function() {
+            const word = this.dataset.word;
+            kataTaling = kataTaling.filter(w => w !== word);
+            renderTalingList();
+            updateOutput();
+        });
+    });
+}
+
+addTalingBtn.addEventListener('click', function() {
+    const val = talingInput.value.trim().toLowerCase();
+    if (val && !kataTaling.includes(val)) {
+        kataTaling.push(val);
+        renderTalingList();
+        updateOutput();
+        talingInput.value = '';
+    }
+});
+
+talingInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') addTalingBtn.click();
+});
+
 const CONTOH = 'Raden Aji';
 
 function updateOutput() {
@@ -398,7 +444,9 @@ function checkFont() {
     else fontWarning.classList.remove('show');
 }
 
-inputEl.value = CONTOH;
+// Inisialisasi
+renderTalingList();
+inputEl.value = 'ceker Raden Aji';
 updateOutput();
 setTimeout(checkFont, 500);
 </script>
